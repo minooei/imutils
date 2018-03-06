@@ -115,4 +115,27 @@ namespace util {
         //return the warped image
         return warped;
     }
+
+    double medianMat(cv::Mat Input) {
+        Input = Input.reshape(0, 1); // spread Input Mat to single row
+        std::vector<double> vecFromMat;
+        Input.copyTo(vecFromMat); // Copy Input Mat to vector vecFromMat
+        std::nth_element(vecFromMat.begin(), vecFromMat.begin() + vecFromMat.size() / 2, vecFromMat.end());
+        return vecFromMat[vecFromMat.size() / 2];
+    }
+
+    Mat auto_canny(Mat image, double sigma) {
+// compute the median of the single channel pixel intensities
+        double v = medianMat(image);
+
+// apply automatic Canny edge detection using the computed median
+        int lower = int(max(0.0, (1.0 - sigma) * v));
+        int upper = int(min(255.0, (1.0 + sigma) * v));
+//        edged = cv2.Canny(image, lower, upper)
+        Mat edged;
+        Canny(image, edged, lower, upper);
+
+// return the edged image
+        return edged;
+    }
 }

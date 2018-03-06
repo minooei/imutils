@@ -10,4 +10,4 @@ namespace util {
     std::vector<cv::Point2f> order_points(std::vector<cv::Point2f> points);
     cv::Mat four_point_transform(cv::Mat image, std::vector<cv::Point2f> pts);
     cv::Mat resize(cv::Mat image, int width = 0, int height = 0, int inter = cv::INTER_AREA) ;
-};
+    cv::Mat auto_canny(cv::Mat image, double sigma = 0.33);
