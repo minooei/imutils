@@ -1,12 +1,12 @@
 //
 // Created by mohamad on 5/8/17.
 //
-#include "util.h"
+#include "imutils.h"
 
 using namespace cv;
 using namespace std;
 
-namespace util {
+namespace imutils {
 
     bool x_sort(const Point2f &a, const Point2f &b) {
         return a.x < b.x;
@@ -17,8 +17,8 @@ namespace util {
     }
 
     double dist(Point p, Point q) {
-        return std::sqrt((p.x - q.x) * (p.x - q.x) +
-                         (p.y - q.y) * (p.y - q.y));
+        return sqrt((p.x - q.x) * (p.x - q.x) +
+                    (p.y - q.y) * (p.y - q.y));
     }
 
     Mat resize(Mat image, int width, int height, int inter) {
@@ -53,20 +53,20 @@ namespace util {
     vector<Point2f> order_points(vector<Point2f> points) {
 
         //sort the points based on their x-coordinates
-        std::sort(points.begin(), points.end(), x_sort);
+        sort(points.begin(), points.end(), x_sort);
         //grab the left-most and right-most points from the sorted x-roodinate points
-        std::vector<Point2f> leftMost(points.begin(), points.begin() + points.size() / 2),
+        vector<Point2f> leftMost(points.begin(), points.begin() + points.size() / 2),
                 rightMost(points.begin() + points.size() / 2, points.end());
         //now, sort the left-most coordinates according to their
         //y-coordinates so we can grab the top-left and bottom-left
         //points, respectively
-        std::sort(leftMost.begin(), leftMost.end(), y_sort);
+        sort(leftMost.begin(), leftMost.end(), y_sort);
         Point2f tl = leftMost[0];
         Point2f bl = leftMost[1];
         //now, sort the right-most coordinates according to their
         //y-coordinates so we can grab the top-right and bottom-right
         //points, respectively
-        std::sort(rightMost.begin(), rightMost.end(), y_sort);
+        sort(rightMost.begin(), rightMost.end(), y_sort);
         Point2f tr = rightMost[0];
         Point2f br = rightMost[1];
         //return the coordinates in top-left, top-right,bottom-right, and bottom-left order
@@ -108,34 +108,93 @@ namespace util {
         dst.push_back(Point2f(maxWidth - 1, maxHeight - 1));
         dst.push_back(Point2f(0, maxHeight - 1));
 
-        //compute the util transform matrix and then apply it
-        Mat M = cv::getPerspectiveTransform(sorted_pts, dst);
+        //compute the imutil transform matrix and then apply it
+        Mat M = getPerspectiveTransform(sorted_pts, dst);
         Mat warped;
-        cv::warpPerspective(image, warped, M, Size(maxWidth, maxHeight));
+        warpPerspective(image, warped, M, Size(maxWidth, maxHeight));
         //return the warped image
         return warped;
     }
 
-    double medianMat(cv::Mat Input) {
+    double medianMat(Mat Input) {
         Input = Input.reshape(0, 1); // spread Input Mat to single row
-        std::vector<double> vecFromMat;
+        vector<double> vecFromMat;
         Input.copyTo(vecFromMat); // Copy Input Mat to vector vecFromMat
-        std::nth_element(vecFromMat.begin(), vecFromMat.begin() + vecFromMat.size() / 2, vecFromMat.end());
+        nth_element(vecFromMat.begin(), vecFromMat.begin() + vecFromMat.size() / 2, vecFromMat.end());
         return vecFromMat[vecFromMat.size() / 2];
     }
 
     Mat auto_canny(Mat image, double sigma) {
-// compute the median of the single channel pixel intensities
+        // compute the median of the single channel pixel intensities
         double v = medianMat(image);
 
-// apply automatic Canny edge detection using the computed median
+        // apply automatic Canny edge detection using the computed median
         int lower = int(max(0.0, (1.0 - sigma) * v));
         int upper = int(min(255.0, (1.0 + sigma) * v));
-//        edged = cv2.Canny(image, lower, upper)
+        //edged = cv2.Canny(image, lower, upper)
         Mat edged;
         Canny(image, edged, lower, upper);
 
-// return the edged image
+        // return the edged image
         return edged;
+    }
+
+    vector<vector<Point>>
+    sort_contours(vector<vector<Point>> contours, vector<Rect> &boundRect, int method) {
+        // initialize the reverse flag and sort index
+        bool reverse = false;
+        int xy = 0;
+
+        // handle if we need to sort in reverse
+        if (method == 1 or method == 2)
+            reverse = true;
+
+        // handle if we are sorting against the y-coordinate rather than
+        // the x-coordinate of the bounding box
+        if (method == 3 or method == 2)
+            xy = 1;
+
+        // construct the list of bounding boxes and sort them from top to bottom
+//        boundingBoxes = [cv2.boundingRect(c) for c in cnts]
+        for (size_t i = 0; i < contours.size(); i++) {
+            boundRect.push_back(boundingRect(contours[i]));
+        }
+
+        std::vector<int> indices(boundRect.size());
+        std::size_t n(0);
+        std::generate(std::begin(indices), std::end(indices), [&] { return n++; });
+
+        std::sort(std::begin(indices),
+                  std::end(indices),
+                  [&](int i1, int i2) {
+                      return xy ? boundRect[i1].y < boundRect[i2].y : boundRect[i1].x < boundRect[i2].x;
+                  });
+        if (reverse)
+            std::reverse(indices.begin(), indices.end());
+        vector<vector<Point>> contours_sorted;
+        boundRect.clear();
+        for (auto v : indices) {
+            contours_sorted.push_back(contours[v]);
+            boundRect.push_back(boundingRect(contours[v]));
+        }
+        return contours_sorted;
+    }
+
+    cv::Mat
+    label_contour(cv::Mat image, std::vector<std::vector<cv::Point> > c, int i, cv::Scalar color, int thickness) {
+
+        // compute the center of the contour area and draw a circle
+        // representing the center
+        Moments M = moments(c[0]);
+        int cX = int(M.m10 / M.m00);
+        int cY = int(M.m01 / M.m00);
+
+        // draw the contour and label number on the image
+        drawContours(image, c, -1, color, thickness);
+        putText(image, to_string(i + 1), cv::Point(cX - 20, cY), FONT_HERSHEY_SIMPLEX,
+                1.0, (255, 255, 255), 2);
+
+        // return the image with the contour number drawn on it
+        return image;
     }
 }
