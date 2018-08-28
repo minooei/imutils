@@ -21,6 +21,37 @@ namespace imutils {
                     (p.y - q.y) * (p.y - q.y));
     }
 
+    Mat translate(Mat image, float x, float y) {
+//# define the translation matrix and perform the translation
+        double m_scale[2][3] = {{1, 0, x},
+                                {0, 1, y}};
+
+        Mat M = Mat(2, 3, CV_64F, m_scale);
+        Mat shifted;
+        warpAffine(image, shifted, M, cv::Size(image.cols, image.rows));
+
+//# return the translated image
+        return shifted;
+    }
+
+    Mat rotate(Mat image, double angle, cv::Point center, double scale) {
+//    # grab the dimensions of the image
+        int h = image.rows, w = image.cols;
+
+//    # if the center is None, initialize it as the center of
+//    # the image
+        if (center.x == 0 && center.y == 0)
+            center = cv::Point(w / 2, h / 2);
+
+//    # perform the rotation
+        Mat M = getRotationMatrix2D(center, angle, scale);
+        Mat rotated;
+        warpAffine(image, rotated, M, cv::Size(w, h));
+
+//    # return the rotated image
+        return rotated;
+    }
+
     Mat resize(Mat image, int width, int height, int inter) {
         // initialize the dimensions of the image to be resized and
         // grab the image size

@@ -23,6 +23,10 @@ namespace imutils {
 
     cv::Mat four_point_transform(cv::Mat image, std::vector<cv::Point2f> pts);
 
+    cv::Mat translate(cv::Mat image, float x, float y);
+
+    cv::Mat rotate(cv::Mat image, double angle, cv::Point center = cv::Point(0, 0), double scale = 1.0);
+
     cv::Mat resize(cv::Mat image, int width = 0, int height = 0, int inter = cv::INTER_AREA);
 
     cv::Mat auto_canny(cv::Mat image, double sigma = 0.33);
@@ -32,5 +36,6 @@ namespace imutils {
                   int method = SortContoursMethods::left_to_right);
 
     cv::Mat
-    label_contour(cv::Mat image, std::vector<std::vector<cv::Point> > c, int i, cv::Scalar color = (0, 255, 0), int thickness = 2);
+    label_contour(cv::Mat image, std::vector<std::vector<cv::Point> > c, int i, cv::Scalar color = (0, 255, 0),
+                  int thickness = 2);
 }
