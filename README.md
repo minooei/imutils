@@ -2,23 +2,21 @@
 A series of convenience functions to make basic image processing operations such as translation, rotation, resizing and skeletonization with OpenCV and C++.
 
 ## Translation
-Translation is the shifting of an image in either the *x* or *y* direction. To translate an image in OpenCV you would need to supply the *(x, y)*-shift, denoted as *(t<sub>x</sub>, t<sub>y</sub>)* to construct the translation matrix *M*:
-
-![Translation equation](docs/images/translation_eq.png?raw=true)
+Translation is the shifting of an image in either the *x* or *y* direction. To translate an image in OpenCV you would need to supply the *(x, y)*-shift, denoted as *(t<sub>x</sub>, t<sub>y</sub>)* to construct the translation matrix *M*
 
 And from there, you would need to apply the `warpAffine` function.
 
 Instead of manually constructing the translation matrix *M* and calling `warpAffine`, you can simply make a call to the `translate` function of `imutils`.
 
 #### Example:
-<pre># translate the image x=25 pixels to the right and y=75 pixels up
-Mat translated = imutils::translate(workspace, -50, 100);</pre>
+<pre>// translate the image x=25 pixels to the right and y=75 pixels up
+Mat translated = imutils::translate(workspace, 25, -75);</pre>
 
 ## Rotation
 Rotating an image in OpenCV is accomplished by making a call to `getRotationMatrix2D` and `warpAffine`. Further care has to be taken to supply the *(x, y)*-coordinate of the point the image is to be rotated about. These calculation calls can quickly add up and make your code bulky and less readable. The `rotate` function in `imutils` helps resolve this problem.
 
 #### Example:
-<pre># loop over the angles to rotate the image
+<pre>   // loop over the angles to rotate the image
 for (int angle :  {50, 360, 90}) {
         //# rotate the image and display it
         Mat bridge = imread("shapes.png");
@@ -35,7 +33,7 @@ Resizing an image in OpenCV is accomplished by calling the `resize` function. Ho
 Another optional keyword argument, `inter`, can be used to specify interpolation method as well.
 
 #### Example:
-<pre># loop over varying widths to resize the image to
+    <pre>   // loop over varying widths to resize the image to
     for (int width : {400, 300, 200, 100}) {
         //    # resize the image and display it
         Mat image = imread("pyimagesearch_logo.jpg");
@@ -50,10 +48,10 @@ Skeletonization is the process of constructing the "topological skeleton" of an 
 
 For convenience, the `skeletonize` function of `imutils` can be used to construct the topological skeleton of the image.
 
-The first argument, `size` is the size of the structuring element kernel. An optional argument, `structuring`, can be used to control the structuring element -- it defaults to `cv2.MORPH_RECT`	, but can be any valid structuring element.
+The first argument, `size` is the size of the structuring element kernel. An optional argument, `structuring`, can be used to control the structuring element -- it defaults to `MORPH_RECT`	, but can be any valid structuring element.
 
 #### Example:
-<pre># skeletonize the image
+<pre>   // skeletonize the image
     Mat gray = imread("pyimagesearch_logo.jpg", 0);
     Mat skeleton = imutils::skeletonize(gray, cv::Size(3, 3));
     imshow("Skeleton", skeleton);</pre>
