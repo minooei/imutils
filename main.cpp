@@ -11,6 +11,12 @@ void rotate_bound_demo();
 
 void skeletonize();
 
+void resizing_demo();
+
+void auto_canny_demo();
+
+void four_point_transform_demo();
+
 using namespace std;
 using namespace cv;
 
@@ -19,9 +25,46 @@ int main() {
 //    sorting_contours();
 //    rotate_demo();
 //    rotate_demo();
-    skeletonize();
+//    skeletonize();
 //    translate_demo();
+//    resizing_demo();
+//    auto_canny_demo();
+//    four_point_transform_demo();
     return 0;
+}
+
+void four_point_transform_demo() {
+    Mat notecard = imread("notecard.png");
+    vector<Point2f> pts;
+    pts.push_back(Point2f(73, 239));
+    pts.push_back(Point2f(356, 117));
+    pts.push_back(Point2f(475, 265));
+    pts.push_back(Point2f(187, 443));
+    Mat res = imutils::four_point_transform(notecard, pts);
+    imshow("four_point_transform", res);
+    waitKey(0);
+
+}
+
+void auto_canny_demo() {
+    Mat gray = imread("pyimagesearch_logo.jpg", 0);
+    Mat edgeMap = imutils::auto_canny(gray);
+    imshow("Automatic Edge Map", edgeMap);
+    waitKey(0);
+}
+
+void resizing_demo() {
+    //# loop over varying widths to resize the image to
+    for (int width : {400, 300, 200, 100}) {
+        //    # resize the image and display it
+        Mat image = imread("pyimagesearch_logo.jpg");
+
+        Mat resized = imutils::resize(image, width);
+        imshow("Width= " + (width), resized);
+    }
+    //# wait for a keypress, then close all the windows
+    waitKey(0);
+
 }
 
 void skeletonize() {
@@ -62,7 +105,7 @@ void rotate_demo() {
             return;
         }
         Mat rotated = imutils::rotate(bridge, angle);
-        imshow("Angle=%d", rotated);
+        imshow("Angle="+angle, rotated);
         waitKey(0);
     }
 }

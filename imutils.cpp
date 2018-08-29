@@ -294,6 +294,4 @@ namespace imutils {
     }
 
 
-
-
 }
