@@ -16,7 +16,7 @@ Mat translated = imutils::translate(workspace, 25, -75);</pre>
 Rotating an image in OpenCV is accomplished by making a call to `getRotationMatrix2D` and `warpAffine`. Further care has to be taken to supply the *(x, y)*-coordinate of the point the image is to be rotated about. These calculation calls can quickly add up and make your code bulky and less readable. The `rotate` function in `imutils` helps resolve this problem.
 
 #### Example:
-<pre>   // loop over the angles to rotate the image
+<pre>  // loop over the angles to rotate the image
 for (int angle :  {50, 360, 90}) {
         //# rotate the image and display it
         Mat bridge = imread("shapes.png");
@@ -33,14 +33,14 @@ Resizing an image in OpenCV is accomplished by calling the `resize` function. Ho
 Another optional keyword argument, `inter`, can be used to specify interpolation method as well.
 
 #### Example:
-    <pre>   // loop over varying widths to resize the image to
-    for (int width : {400, 300, 200, 100}) {
-        //    # resize the image and display it
-        Mat image = imread("pyimagesearch_logo.jpg");
+<pre>  // loop over varying widths to resize the image to
+for (int width : {400, 300, 200, 100}) {
+    //    # resize the image and display it
+    Mat image = imread("pyimagesearch_logo.jpg");
 
-        Mat resized = imutils::resize(image, width);
-        imshow("Width= " + (width), resized);
-    }</pre>
+    Mat resized = imutils::resize(image, width);
+    imshow("Width= " + (width), resized);
+}</pre>
 
 
 ## Skeletonization
