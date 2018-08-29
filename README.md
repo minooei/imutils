@@ -1,6 +1,9 @@
 # imutils
 A series of convenience functions to make basic image processing operations such as translation, rotation, resizing and skeletonization with OpenCV and C++.
 
+## Reference [imutils](https://github.com/jrosebr1/imutils)
+
+
 ## Translation
 Translation is the shifting of an image in either the *x* or *y* direction. To translate an image in OpenCV you would need to supply the *(x, y)*-shift, denoted as *(t<sub>x</sub>, t<sub>y</sub>)* to construct the translation matrix *M*
 
