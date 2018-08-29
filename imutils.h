@@ -25,6 +25,10 @@ namespace imutils {
 
     cv::Mat translate(cv::Mat image, float x, float y);
 
+    cv::Mat skeletonize(cv::Mat image, cv::Size size, int structuring = cv::MORPH_RECT);
+
+    cv::Mat rotate_bound(cv::Mat image, double angle);
+
     cv::Mat rotate(cv::Mat image, double angle, cv::Point center = cv::Point(0, 0), double scale = 1.0);
 
     cv::Mat resize(cv::Mat image, int width = 0, int height = 0, int inter = cv::INTER_AREA);

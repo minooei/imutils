@@ -21,6 +21,7 @@ namespace imutils {
                     (p.y - q.y) * (p.y - q.y));
     }
 
+
     Mat translate(Mat image, float x, float y) {
 //# define the translation matrix and perform the translation
         double m_scale[2][3] = {{1, 0, x},
@@ -35,20 +36,84 @@ namespace imutils {
     }
 
     Mat rotate(Mat image, double angle, cv::Point center, double scale) {
-//    # grab the dimensions of the image
+        //    # grab the dimensions of the image
         int h = image.rows, w = image.cols;
 
-//    # if the center is None, initialize it as the center of
-//    # the image
+        //    # if the center is None, initialize it as the center of
+        //    # the image
         if (center.x == 0 && center.y == 0)
             center = cv::Point(w / 2, h / 2);
 
-//    # perform the rotation
+        //    # perform the rotation
         Mat M = getRotationMatrix2D(center, angle, scale);
         Mat rotated;
         warpAffine(image, rotated, M, cv::Size(w, h));
 
-//    # return the rotated image
+        //    # return the rotated image
+        return rotated;
+    }
+
+    Mat skeletonize(Mat image, cv::Size size, int structuring) {
+
+        //# determine the area (i.e. total number of pixels in the image),
+        //# initialize the output skeletonized image, and construct the
+        //# morphological structuring element
+        int h = image.rows, w = image.cols;
+
+        int area = h * w;
+        Mat skeleton = cv::Mat::zeros(image.size(), image.type());
+        Mat elem = getStructuringElement(structuring, size);
+
+        //# keep looping until the erosions remove all pixels from the
+        //# image
+        while (1) {
+            //# erode and dilate the image using the structuring element
+            Mat eroded;
+            erode(image, eroded, elem);
+            Mat temp;
+            dilate(eroded, temp, elem);
+
+            //# subtract the temporary image from the original, eroded
+            //# image, then take the bitwise 'or' between the skeleton
+            //# and the temporary image
+            subtract(image, temp, temp);
+            bitwise_or(skeleton, temp, skeleton);
+            image = eroded.clone();
+
+            //# if there are no more 'white' pixels in the image, then
+            //# break from the loop
+            if (area == area - countNonZero(image))
+                break;
+        }
+        //# return the skeletonized image
+        return skeleton;
+    }
+
+    Mat rotate_bound(Mat image, double angle) {
+        //# grab the dimensions of the image and then determine the# center
+        int h = image.rows, w = image.cols;
+
+        cv::Point center = cv::Point(w / 2, h / 2);
+
+
+        //# grab the rotation matrix (applying the negative of the
+        //# angle to rotate clockwise), then grab the sine and cosine
+        //# (i.e., the     rotation components of the  matrix)
+        Mat M = getRotationMatrix2D(center, -angle, 1.0);
+        double cos = abs(M.at<double>(0, 0));
+        double sin = abs(M.at<double>(0, 1));
+
+        //# compute the new bounding dimensions of the image
+        int nW = int((h * sin) + (w * cos));
+        int nH = int((h * cos) + (w * sin));
+
+        //# adjust the rotation matrix to take into account translation
+        M.at<double>(0, 2) += (nW / 2) - center.x;
+        M.at<double>(1, 2) += (nH / 2) - center.y;
+        Mat rotated;
+
+        //# perform the actual rotation and return the image
+        warpAffine(image, rotated, M, cv::Size(nW, nH));
         return rotated;
     }
 
@@ -162,7 +227,6 @@ namespace imutils {
         // apply automatic Canny edge detection using the computed median
         int lower = int(max(0.0, (1.0 - sigma) * v));
         int upper = int(min(255.0, (1.0 + sigma) * v));
-        //edged = cv2.Canny(image, lower, upper)
         Mat edged;
         Canny(image, edged, lower, upper);
 
@@ -186,7 +250,7 @@ namespace imutils {
             xy = 1;
 
         // construct the list of bounding boxes and sort them from top to bottom
-//        boundingBoxes = [cv2.boundingRect(c) for c in cnts]
+        // boundingBoxes = [cv2.boundingRect(c) for c in cnts]
         for (size_t i = 0; i < contours.size(); i++) {
             boundRect.push_back(boundingRect(contours[i]));
         }
@@ -228,4 +292,8 @@ namespace imutils {
         // return the image with the contour number drawn on it
         return image;
     }
+
+
+
+
 }

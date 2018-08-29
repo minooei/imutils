@@ -7,6 +7,10 @@ void rotate_demo();
 
 void translate_demo();
 
+void rotate_bound_demo();
+
+void skeletonize();
+
 using namespace std;
 using namespace cv;
 
@@ -14,8 +18,31 @@ int main() {
     std::cout << "Hello, World!" << std::endl;
 //    sorting_contours();
 //    rotate_demo();
-    translate_demo();
+//    rotate_demo();
+    skeletonize();
+//    translate_demo();
     return 0;
+}
+
+void skeletonize() {
+    Mat gray = imread("pyimagesearch_logo.jpg", 0);
+    Mat skeleton = imutils::skeletonize(gray, cv::Size(3, 3));
+    imshow("Skeleton", skeleton);
+    waitKey(0);
+}
+
+void rotate_bound_demo() {
+    for (int angle :  {50, 360, 90}) {
+        //# rotate the image and display it
+        Mat bridge = imread("shapes.png");
+        if (bridge.empty()) {
+            cout << "err" << endl;
+            return;
+        }
+        Mat rotated = imutils::rotate_bound(bridge, angle);
+        imshow("Angle=%d", rotated);
+        waitKey(0);
+    }
 }
 
 void translate_demo() {
@@ -27,7 +54,7 @@ void translate_demo() {
 }
 
 void rotate_demo() {
-    for (int angle :  {0, 360, 90}) {
+    for (int angle :  {50, 360, 90}) {
         //# rotate the image and display it
         Mat bridge = imread("shapes.png");
         if (bridge.empty()) {
